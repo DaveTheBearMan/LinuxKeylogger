@@ -1,5 +1,4 @@
 #include "config.h"
-
 /*
         Returns 1 for file does not exist, and 0 otherwise.
 */
@@ -72,29 +71,44 @@ char* getEvent() {
 */
 int interpretCharacter(char* outputBuffer, struct input_event *eventInput, int *bufferIndex) {
 	// Linux keymap based on qwerty keyboard.
-	char *keymap = "..1234567890-=..QWERTYUIOP[]..ASDFGHJKL;'`.\\ZXCVBNM,./... .";
+	static int shiftPressed = 0;
+	static int capsEnabled = 0;
 
 	switch (eventInput->code) {
-		case 14:
+		case KEY_BACKSPACE:
 			// Delete (Move index back one)
 			(*bufferIndex) -= 1;
 			return 0;
-		case 28:
+		case KEY_ENTER:
 			// New line
 			outputBuffer[*bufferIndex] = '\n';
 			outputBuffer[*bufferIndex + 1] = '\0';
 			return -1;
-		default:
-			// Everything else
-			// Get and set character entry.
-			char entry = keymap[eventInput->code];
-
-			if (entry != '.') {
-	                	outputBuffer[*bufferIndex] = entry;
-	                	(*bufferIndex) += 1;
+		case KEY_LEFTSHIFT:
+	        case KEY_RIGHTSHIFT:
+			shiftPressed = (eventInput->value != 0);  // true if key press or hold, false if key release
+			return 0;
+		case KEY_CAPSLOCK:
+			if (eventInput->value == 1) {  // Only toggle on key press, not release or hold
+				capsEnabled = !capsEnabled;
 			}
+			return 0;
+		default:
+			if (eventInput->code >= KEY_1 && eventInput->code <= KEY_SLASH) {
+				// Determine if we should convert the character to uppercase
+					// Shift and caps cancel out
+					// We only want characters a-z to be uppercased
+				int uppercase = (shiftPressed ^ capsEnabled) && (*KEYMAP[eventInput->code] >= 97 && *KEYMAP[eventInput->code] <= 122);
 
-			return 1;
+				// Convert to uppercase if necessary
+				char entry = uppercase ? *KEYMAP[eventInput->code] - 32 : *KEYMAP[eventInput->code];
+
+				// Add entry to buffer
+				outputBuffer[*bufferIndex] = entry;
+				(*bufferIndex)++;
+				return 1;
+			}
+			return 0;
 	}
 }
 
@@ -145,6 +159,7 @@ char* inputBuffer(int argc, char **argv, char *eventName, int *temporaryBufferCo
 					break;
 				case -1:
 					// End
+					printf("%s", outputBuffer);
 					return outputBuffer;
 			}
                 }

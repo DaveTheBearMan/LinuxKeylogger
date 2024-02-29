@@ -23,6 +23,15 @@
 #define BUFFER_INCREASE 2
 #define BUFFER_GOAL 10
 
+// Updated mapping
+static const char *KEYMAP[] = {
+    "", "", "1", "2", "3", "4", "5", "6", "7", "8", // 0-9
+    "9", "0", "-", "=", "", "\t", "q", "w", "e", "r", // 10-19
+    "t", "y", "u", "i", "o", "p", "[", "]", "\n", "", // 20-29
+    "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", // 30-39
+    "'", "`", "", "\\", "z", "x", "c", "v", "b", "n", // 40-49
+    "m", ",", ".", "/", "", "*", "[LEFT_ALT]", " ", "", "" // 50-59
+};
 
 // Function prototypes
 int checkFileExists(FILE *inputFile);
